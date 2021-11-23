@@ -4,7 +4,7 @@ import useAuth from '../../hooks/useAuth';
 import './Login.css'
 const Login = () => {
 
-    const { signInUsingGoogle } = useAuth();
+    const { signInUsingGoogle, setLoading } = useAuth();
     const location = useLocation();
     const history = useHistory();
     const redirect_uri = location.state?.from || '/shop'
@@ -13,6 +13,7 @@ const Login = () => {
             .then(result => {
                 history.push(redirect_uri);
             })
+            .finally(() => setLoading(false))
 
     }
     return (

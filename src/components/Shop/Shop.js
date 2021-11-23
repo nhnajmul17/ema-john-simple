@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import useCart from '../../hooks/useCart';
 import { addToDb, getStoredCart } from '../../utilities/fakedb';
 import Cart from '../Cart/Cart';
 import Product from '../Product/Product';
@@ -7,20 +8,26 @@ import './Shop.css'
 
 const Shop = () => {
     const [products, setProducts] = useState([]);
-    const [cart, setCart] = useState([])
+    const [cart, setCart] = useCart()
+    const [pageCount, setPageCount] = useState(0);
+    const [page, setPage] = useState(0);
     //products to be render on UI
     const [displayProducts, setDisplayProducts] = useState([]);
-
+    const size = 15;
 
     useEffect(() => {
-        fetch('./products.json')
+        fetch(`https://blooming-anchorage-25739.herokuapp.com/products?page=${page}&&size=${size}`)
             .then(res => res.json())
             .then(data => {
-                setProducts(data);
-                setDisplayProducts(data)
+                setProducts(data.products);
+                setDisplayProducts(data.products)
+                const count = data.count;
+                const pageNumber = Math.ceil(count / size);
+                setPageCount(pageNumber)
+
             })
 
-    }, [])
+    }, [page])
 
     useEffect(() => {
         if (products.length) {
@@ -39,7 +46,7 @@ const Shop = () => {
             setCart(storedCart)
         }
 
-    }, [products])
+    }, [])
 
 
     const handleAddToCart = (product) => {
@@ -88,6 +95,15 @@ const Shop = () => {
 
                         </Product>)
                     }
+                    <div className="pagination">
+                        {
+                            [...Array(pageCount).keys()].map(number => <button
+                                className={number === page ? 'selected' : ''}
+                                key={number}
+                                onClick={() => setPage(number)}
+                            >{number + 1}</button>)
+                        }
+                    </div>
                 </div>
 
                 <div >
